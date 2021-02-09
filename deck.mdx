@@ -1,0 +1,923 @@
+import { CodeSurfer, CodeSurferColumns, Step  } from "code-surfer";
+import { nightOwl } from "@code-surfer/themes";
+import { Head, Notes } from "mdx-deck";
+import cypressWebsite from './images/Screenshot 2021-02-09 at 1.24.04 AM.png'
+import npmI from './images/Screenshot 2021-02-09 at 1.54.10 AM.png'
+import Hr from './hr'
+import Link from './Link'
+import tweet from './images/Screenshot 2021-02-09 at 12.43.10 PM.png'
+
+export const theme = {
+  ...nightOwl,
+  fonts: {
+    body: "'Operator Mono Lig', Roboto, sans-serif",
+    monospace: '"operator mono lig","dank mono", "Roboto Mono", monospace',
+  },
+  colors: {
+    text: "white",
+    background: "#012F6C",
+    primary: "blue",
+  },
+  styles: {
+    a: {
+      colot: 'white',
+    },
+  }
+};
+
+<Head>
+  <title>Intro to Testing with Cypress</title>
+</Head>
+
+<div>
+  <div
+    style={{ color: "#A9CB3A", fontSize: 50, fontWeight: 600, lineHeight: 1.5 }}
+  >
+    Intro to Testing with
+    <br />
+    Cypress
+  </div>
+  <br />
+  <br />
+  <br />
+  <span style={{fontStyle:"italic"}}> Feb 2021 </span>
+  <br />
+  <br />
+  <span style={{fontStyle:"italic"}}>Droan Malik</span>
+</div>
+
+---
+
+## What is Cypress?
+
+- End-to-end testing framework
+- Alternative to selenium
+- Open source test runner
+
+
+---
+<br/>
+<a href="https://cypress.io" target="_blank" style={{color:'white'}}>https://cypress.io</a>
+<img src={cypressWebsite} style={{ width: "70%" }}  alt="cypress website"/>
+
+---
+
+Why use cypress?
+
+---
+
+Easy Setup
+
+---
+
+```bash
+npm install -D cypress
+```
+
+---
+
+<br/>
+<img src={npmI} style={{ width: "70%" }}  alt="install cypress"/>
+<br/>
+
+---
+
+```bash
+npx cypress open
+```
+<Notes>gco cy-install, npx cypress open,
+  <Hr/>
+  show cypress ui, with configuration
+  <Hr />
+  show folder structure
+  <Hr/>
+  all cypress related data resides in the cypress folder
+  <Hr/>
+  cypress.json is used to configure cypress, base url, env, Show viewPortWidth, viewPortHeight
+  <Hr/>
+  fixtures is the place to save mock API responses
+  <Hr/>
+  Plugins allow you to hook into cy's lifecycle hooks and allow you to modify code, eg plugins: cypressautomocker, @cypress/react (for component testing)
+  <Hr/>
+  screenshots get saved in the screenshots folder, same for videos
+</Notes>
+
+---
+
+## Demo
+
+<Link href="https://github.com/gothinkster/react-redux-realworld-example-app">react-redux-realworld-example-app</Link>
+<br/>
+<Link href="http://localhost:4100">localhost:4100</Link>
+
+<Notes>gcm</Notes>
+
+---
+
+## Testing a Login flow
+
+URL: http://localhost:4100/login
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+  })};
+  ```
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+    cy.visit('/login');
+  })};
+  ```
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('droanmalik@gmail.com');
+  })};
+  ```
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('droanmalik@gmail.com');
+    cy.get('input[type=password]').type('qwertyuiop');
+  })};
+  ```
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('droanmalik@gmail.com');
+    cy.get('input[type=password]').type('qwertyuiop');
+    cy.get('button[type=submit]').click();
+  })};
+  ```
+
+  ```js
+  describe('Login in Flow', () => {
+  it('should login successfully', () => {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('droanmalik@gmail.com');
+    cy.get('input[type=password]').type('qwertyuiop');
+    cy.get('button[type=submit]').click();
+    cy.get('html').should('contain', 'Your Feed');
+  })};
+  ```
+
+</CodeSurfer>
+
+---
+
+## Testing user does not exist flow
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js
+  it('should not exist', function () {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('xyz@wrongemail.com');
+    cy.get('input[type=password]').type('qwertyuiop');
+    cy.get('button[type=submit]').click();
+});
+  ```
+
+  ```js
+  it('should not exist', function () {
+    cy.visit('/login');
+    cy.get('input[type=email]').type('xyz@wrongemail.com');
+    cy.get('input[type=password]').type('qwertyuiop');
+    cy.get('button[type=submit]').click();
+    cy.get('.error-messages').should(
+    'contain',
+    /email or password is invalid/i,
+  );
+});
+  ```
+
+  ```js
+  cy.visit('/login')
+    .get('input[type=email]')
+    .type('xyz@wrongemail.com')
+    .get('input[type=password]')
+    .type('qwertyuiop')
+    .get('button[type=submit]')
+    .click()
+    .get('.error-messages')
+    .should('contain', /email or password is invalid/i);
+  ```
+
+</CodeSurfer>
+
+---
+
+## cypress-testing-library
+
+- From the @testing-library family
+- Encourages testing user behavior instead of implementation detail
+- Helps in finding a11y issues
+
+---
+
+<Link href="https://twitter.com/kentcdodds/status/977018512689455106" stye={{width:200}}>
+  <img src={tweet} style={{width:'100%'}}alt="cypress website"/>
+</Link>
+
+---
+
+## 02 Refactor using cypress-testing-library
+
+---
+<CodeSurfer theme={nightOwl}>
+
+  ```js 3
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+  ```js 4
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+  ```js 5
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+  ```js 6,7,8
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+  ```js 9
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+  ```js
+  describe('Sign in Flow using cypress-testing-library', () => {
+  it('should login successfully', function () {
+    cy.visit('/login')
+    cy.findByLabelText(/email/i).type('droanmalik@gmail.com')
+    cy.findByLabelText(/password/i).type('qwertyuiop')
+    cy.findByRole('button', {
+      name: /sign in/i,
+    }).click()
+    cy.get('html').should('contain', 'Your Feed')
+  })
+})
+  ```
+
+
+
+</CodeSurfer>
+
+
+---
+
+## Cypress can also integrate with axe-core <br/> for a11y automation testing
+
+<Link href="https://www.npmjs.com/package/cypress-axe">cypress-axe</Link>
+
+---
+
+- You can use chrome devtools to debug the test
+- Supports chrome extensions
+- Time travel debugging
+
+---
+
+## 03 Testing the Create Post Flow
+
+Demo: <Link href="http://localhost:4100">http://localhost:4100</Link>
+
+---
+
+## 03 Login via API
+
+---
+<CodeSurfer theme={nightOwl}>
+
+  ```js 3,4,5,6,7,8
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js 9
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js 10
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js 11,12,13
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js 14,15
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+</CodeSurfer>
+
+
+---
+
+## 04, 05 Extracting common commands
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js
+  // cypress/support/commands.js
+  Cypress.Commands.add('login',()=>{
+  cy.request('POST', 'https://conduit.productionready.io/api/users/login',
+    {
+      'user': {
+        'email': 'droanmalik@gmail.com',
+        'password': 'qwertyuiop',
+      },
+    }).
+    its('body.user.token').should('exist').then((token) => {
+    localStorage.setItem('jwt', token);
+  });
+})
+  ```
+</CodeSurfer>
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', {
+      user: {
+        email: 'droanmalik@gmail.com',
+        password: 'qwertyuiop',
+      },
+    })
+    .its('body.user.token')
+    .should('exist')
+    .then((token) => {
+      localStorage.setItem('jwt', token);
+    });
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.login();
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+  })
+});
+  ```
+
+  ```js 7
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.login();
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+
+    cy.findByRole('link', { name: /new post/i }).click();
+    cy.findByTestId('title').type('my title');
+    cy.findByTestId('about').type('about X');
+    cy.findByTestId('article').type('this post is **important**.');
+    cy.findByTestId('tags').type('test{enter}');
+    cy.findByRole('button', { name: /Publish Article/i }).click();
+
+    // changed url means the post was successfully created
+    cy.location('pathname').should('contain', '/article/my-title');
+  });
+});
+  ```
+
+  ```js 8,9,10,11
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.login();
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+
+    cy.findByRole('link', { name: /new post/i }).click();
+    cy.findByTestId('title').type('my title');
+    cy.findByTestId('about').type('about X');
+    cy.findByTestId('article').type('this post is **important**.');
+    cy.findByTestId('tags').type('test{enter}');
+    cy.findByRole('button', { name: /Publish Article/i }).click();
+
+    // changed url means the post was successfully created
+    cy.location('pathname').should('contain', '/article/my-title');
+  });
+});
+  ```
+
+  ```js 12
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.login();
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+
+    cy.findByRole('link', { name: /new post/i }).click();
+    cy.findByTestId('title').type('my title');
+    cy.findByTestId('about').type('about X');
+    cy.findByTestId('article').type('this post is **important**.');
+    cy.findByTestId('tags').type('test{enter}');
+    cy.findByRole('button', { name: /Publish Article/i }).click();
+
+    // changed url means the post was successfully created
+    cy.location('pathname').should('contain', '/article/my-title');
+  });
+});
+  ```
+
+  ```js 15
+  describe('Create Post', () => {
+  it('should be able to add a new post', () => {
+    cy.login();
+    cy.visit('/');
+    cy.get('html').should('contain', 'Your Feed');
+
+    cy.findByRole('link', { name: /new post/i }).click();
+    cy.findByTestId('title').type('my title');
+    cy.findByTestId('about').type('about X');
+    cy.findByTestId('article').type('this post is **important**.');
+    cy.findByTestId('tags').type('test{enter}');
+    cy.findByRole('button', { name: /Publish Article/i }).click();
+
+    // changed url means the post was successfully created
+    cy.location('pathname').should('contain', '/article/my-title');
+  });
+});
+  ```
+
+</CodeSurfer>
+
+---
+
+## 06 Testing Global Feed
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js 3,4
+  describe('Global Feed', () => {
+  it('show pagination', () => {
+    cy.login();
+    cy.visit('/');
+    cy.findByTestId('feedToggle').within(() => {
+      cy.findByRole('link', { name: /global feed/i }).click();
+    });
+    cy.findAllByTestId('articlePreview').should('have.length', 10);
+    cy.findByTestId('pagination').should('be.visible');
+  });
+});
+  ```
+
+  ```js 5,6,7
+  describe('Global Feed', () => {
+  it('show pagination', () => {
+    cy.login();
+    cy.visit('/');
+    cy.findByTestId('feedToggle').within(() => {
+      cy.findByRole('link', { name: /global feed/i }).click();
+    });
+    cy.findAllByTestId('articlePreview').should('have.length', 10);
+    cy.findByTestId('pagination').should('be.visible');
+  });
+});
+  ```
+
+  ```js 8
+  describe('Global Feed', () => {
+  it('show pagination', () => {
+    cy.login();
+    cy.visit('/');
+    cy.findByTestId('feedToggle').within(() => {
+      cy.findByRole('link', { name: /global feed/i }).click();
+    });
+    cy.findAllByTestId('articlePreview').should('have.length', 10);
+    cy.findByTestId('pagination').should('be.visible');
+  });
+});
+  ```
+
+  ```js 9
+  describe('Global Feed', () => {
+  it('show pagination', () => {
+    cy.login();
+    cy.visit('/');
+    cy.findByTestId('feedToggle').within(() => {
+      cy.findByRole('link', { name: /global feed/i }).click();
+    });
+    cy.findAllByTestId('articlePreview').should('have.length', 10);
+    cy.findByTestId('pagination').should('be.visible');
+  });
+});
+  ```
+
+</CodeSurfer>
+
+<Notes> Show time travel
+  </Notes>
+
+---
+
+## 07 Stubbing APIs
+
+<Notes>
+  Show intercept
+  <Hr/>
+  Show fixture file on IDE
+</Notes>
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js
+  describe('Your Feed', () => {
+  it('hide pagination', () => {
+    cy.login();
+    cy.intercept('GET','/api/articles/*', { fixture: 'yourFeed' }).as('getYourFeed')
+    cy.visit('/');
+    cy.findAllByTestId('articlePreview').should('have.length', 3)
+    cy.findByTestId('pagination').should('not.exist')
+  });
+});
+  ```
+  ```js 4
+  describe('Your Feed', () => {
+  it('hide pagination', () => {
+    cy.login();
+    cy.intercept('GET','/api/articles/*', { fixture: 'yourFeed' }).as('getYourFeed')
+    cy.visit('/');
+    cy.findAllByTestId('articlePreview').should('have.length', 3)
+    cy.findByTestId('pagination').should('not.exist')
+  });
+});
+  ```
+
+  ```js 5,6,7,8
+  describe('Your Feed', () => {
+  it('hide pagination', () => {
+    cy.login();
+    cy.intercept('GET','/api/articles/*', { fixture: 'yourFeed' }).as('getYourFeed')
+    cy.visit('/');
+    cy.findAllByTestId('articlePreview').should('have.length', 3)
+    cy.findByTestId('pagination').should('not.exist')
+  });
+});
+  ```
+
+
+</CodeSurfer>
+
+<Notes>
+  This fixture has only 3 posts so, no pagination
+</Notes>
+
+---
+
+## 08 Check data bindings
+
+---
+
+<CodeSurfer theme={nightOwl}>
+
+  ```js 2,3,4,5
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+  ```js 6
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+  ```js 7
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+```js 8
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+```js 9,10
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+```js 11,12,13,14,15,16
+  it('show bind data correctly', () => {
+  cy.login();
+  cy.intercept('GET', '/api/articles/*', { fixture: 'yourFeed' }).as(
+  'getYourFeed',
+  );
+  cy.visit('/');
+  cy.wait('@getYourFeed').then((xhr) => {
+  const { articles } = xhr.response.body;
+  cy.findAllByTestId('articlePreview')
+  .should('have.length', articles.length)
+  .each(($articlePreview, index) => {
+  const article = articles[index];
+  cy.wrap($articlePreview).within(() => {
+  cy.findByText(article.title).should('exist');
+  cy.findAllByRole('link', { name: article.author.username }).should(
+  'exist',
+  );
+});
+});
+});
+  ```
+
+</CodeSurfer>
+
+
+---
+
+## Visual Regression Testing
+
+  using Applitools
+
+  <Link href="https://eyes.applitools.com/app/test-results/00000251789453746396/?accountId=ZUksHcOTCk6yj8t9yP1_nw~~">Demo</Link>
+
+
+  <Notes> Show a visual diff</Notes>
+
+---
+
+  ```bash
+  gco applitools
+```
+
+  ---
+
+  ## Github Integration
+
+
+  <Link href="https://github.com/droan-malik/react-redux-realworld-example-app/pull/2">https://github.com/droan-malik/react-redux-realworld-example-app/pull/2</Link>
+
+  ---
+
+  # Thank You!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
